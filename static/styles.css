@@ -1,0 +1,22 @@
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #f8f9fa;
+    }
+    .navbar {
+        background-color: #007bff;
+    }
+    .navbar a {
+        color: white;
+    }
+    .container {
+        margin-top: 20px;
+    }
+    .btn-primary {
+        background-color: #007bff;
+        border-color: #007bff;
+    }
+    .btn-primary:hover {
+        background-color: #0056b3;
+    }
+</style>

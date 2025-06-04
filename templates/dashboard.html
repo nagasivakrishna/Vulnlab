@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Vuln app</title>
+    <link href="../static/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 260px;
+            background-color: #bac3a5;
+            padding-top: 30px;
+            border-right: 1px solid #dee2e6;
+        }
+        .sidebar button {
+            width: 100%;
+            text-align: left;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        .sidebar button:hover {
+            background-color: #45a049;
+        }
+        .main-content {
+            flex: 1;
+            padding: 30px;
+        }
+        .section {
+            display: none;
+        }
+        .section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <div class="sidebar p-3">
+        <h4>Apps</h4>
+        <button class="btn btn-outline-success" onclick="showSection('landing')" data-app-button>Landing</button>
+        <button class="btn btn-outline-success" onclick="showSection('pingunsafe')"data-app-button >Ping app</button>
+        <button class="btn btn-outline-success" onclick="showSection('pingsafe')" data-app-button>Extremly Secure Ping app</button>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+        <div class="landing">
+            <div id="landing" class="section">
+                <h3>Welcome to the Lab.</h3>
+                <p>Currently there are 2 apps</p>
+            </div>
+        </div>
+        
+        <!-- Ping Content -->
+        <div class="pingsafe">
+            <div id="pingsafe" class="section">
+                <h3>Welcome! This is your <strong><em>extremly</em></strong> safe ping app!</h3>
+                <form action="{{ url_for('pingsafe') }}" method="POST" class="mt-3">
+                    <div class="ping-response">
+                        <label for="ip" class="form-label">Provide IP/hostname to ping</label>
+                        <input type="text" name="ip" id="ip" class="form-control" placeholder="192.168.0.1" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Ping!</button>
+                </form>
+                {% if result %}
+                    <h3>Result:</h3>
+                    <pre>{{ result }}</pre>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="pingunsafe">
+            <div id="pingunsafe" class="section">
+                <h3>Welcome! This is a ping app!</h3>
+                <form action="{{ url_for('pingunsafe') }}" method="POST" class="mt-3">
+                    <div class="ping-unsaferesponse">
+                        <label for="ip" class="form-label">Provide IP/hostname to ping</label>
+                        <input type="text" name="ip" id="ip" class="form-control" placeholder="192.168.0.1" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Ping!</button>
+                </form>
+                {% if result %}
+                    <h3>Result:</h3>
+                    <pre>{{ result }}</pre>
+                {% endif %}
+            </div>
+        </div>
+</div>
+
+    
+    <!-- JavaScript -->
+    <script>
+        function showSection(id) {
+            document.querySelectorAll('.section').forEach(section => {
+                section.classList.remove('active');
+            });
+            document.getElementById(id).classList.add('active');
+        }
+        // Count app buttons using the custom data attribute
+        const appCount = document.querySelectorAll('[data-app-button]').length;
+        const landingText = document.querySelector('#landing p');
+        if (landingText) {
+            landingText.textContent = `Currently there are ${appCount-1} apps`;
+        }
+
+        {% if show_section %}
+            showSection('{{ show_section }}');
+        {% endif %}
+    </script>
+</body>
+</html>
