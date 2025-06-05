@@ -5,12 +5,6 @@ import subprocess
 
 app = Flask(__name__)
 
-
-# Sanitizing to keep alphanumeric, dots, and hyphens only
-def sanitize(ip:str) -> str:
-    return re.sub(r'[^a-zA-Z0-9.\-]', '', ip)
-
-
 # Routes
 @app.route('/', methods=['GET', 'PUT', 'POST'])
 def home():        
@@ -23,6 +17,31 @@ def landing():
 @app.route('/dashboard', methods=['GET','POST'])
 def dashboard():
     return render_template('dashboard.html',show_section='pingunsafe')
+
+# Unsafe because it passes user input directly to os.system() without sanitization.
+# This allows shell injection via special characters like ;, &, |, ` etc.
+@app.route('/pingunsafe', methods=['GET', 'POST'])
+def pingunsafe():
+    try:
+        ip = request.form['ip']
+    except:
+        ip = '127.0.0.1'
+    result = None
+    if result is None:
+        try:
+            os.system(f"{{ ping -c 4 {ip}; }} >> ./tmp.txt 2>&1")
+            with open("./tmp.txt", "r+") as file:
+                result = file.read()
+                file.seek(0)
+                file.truncate()
+        except Exception as e:
+            result = e.output
+    return render_template('dashboard.html', show_section='pingunsafe', result=result)
+
+
+# Sanitizing to keep alphanumeric, dots, and hyphens only
+def sanitize(ip:str) -> str:
+    return re.sub(r'[^a-zA-Z0-9.\-]', '', ip)
 
 
 # The first argument is a list so python does NOT run the command through a shell (like /bin/sh).
@@ -48,25 +67,7 @@ def pingsafe():
     return render_template('dashboard.html', show_section='pingsafe', result=result)
 
 
-# Unsafe because it passes user input directly to os.system() without sanitization.
-# This allows shell injection via special characters like ;, &, |, ` etc.
-@app.route('/pingunsafe', methods=['GET', 'POST'])
-def pingunsafe():
-    try:
-        ip = request.form['ip']
-    except:
-        ip = '127.0.0.1'
-    result = None
-    if result is None:
-        try:
-            os.system(f"{{ ping -c 4 {ip}; }} >> ./tmp.txt 2>&1")
-            with open("./tmp.txt", "r+") as file:
-                result = file.read()
-                file.seek(0)
-                file.truncate()
-        except Exception as e:
-            result = e.output
-    return render_template('dashboard.html', show_section='pingunsafe', result=result)
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', ssl_context=('cert.pem', 'key.pem'), debug=True)

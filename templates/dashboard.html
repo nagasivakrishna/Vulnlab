@@ -58,6 +58,12 @@
         <div class="pingsafe">
             <div id="pingsafe" class="section">
                 <h3>Welcome! This is your <strong><em>extremly</em></strong> safe ping app!</h3>
+                <p> This is a better and safer implementation of the same app.</p>
+                <p>To understand the actual implementation checkout the app.py pingsafe function.</p>
+                <h3>Goals:</h3>
+                <ul>
+                    <li>Try to get command injection in this app</li>
+                </ul>
                 <form action="{{ url_for('pingsafe') }}" method="POST" class="mt-3">
                     <div class="ping-response">
                         <label for="ip" class="form-label">Provide IP/hostname to ping</label>
@@ -75,6 +81,12 @@
         <div class="pingunsafe">
             <div id="pingunsafe" class="section">
                 <h3>Welcome! This is a ping app!</h3>
+                <p> This is a simple app that pings to a given destination (hostname or IP)</p>
+                <h3>Goals:</h3>
+                <ul>
+                    <li>Find as many ways to get cmd injection. There are more than 5 ways to achieve. </li>
+                    <li>Get rev shell back to you</li>
+                </ul>
                 <form action="{{ url_for('pingunsafe') }}" method="POST" class="mt-3">
                     <div class="ping-unsaferesponse">
                         <label for="ip" class="form-label">Provide IP/hostname to ping</label>
