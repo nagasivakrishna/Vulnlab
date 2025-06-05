@@ -40,7 +40,7 @@
     <!-- Sidebar -->
     <div class="sidebar p-3">
         <h4>Apps</h4>
-        <button class="btn btn-outline-success" onclick="showSection('landing')" data-app-button>Landing</button>
+        <button class="btn btn-outline-success" onclick="window.location.href='{{ url_for('landing') }}', showSection('landing')" data-app-button>Landing</button>
         <button class="btn btn-outline-success" onclick="showSection('pingunsafe')" data-app-button>Ping app</button>
         <button class="btn btn-outline-success" onclick="showSection('pingsafe')" data-app-button>Extremly Secure Ping app</button>
         <button class="btn btn-outline-success" onclick="window.location.href='{{ url_for('filesunsafe') }}'" data-app-button>File Storage</button>
