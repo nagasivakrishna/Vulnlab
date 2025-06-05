@@ -1,9 +1,12 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, render_template_string
 import os
 import re
 import subprocess
+import uuid
+from werkzeug.utils import safe_join
 
 app = Flask(__name__)
+FILES_DIR = './files'
 
 # Routes
 @app.route('/', methods=['GET', 'PUT', 'POST'])
@@ -67,7 +70,82 @@ def pingsafe():
     return render_template('dashboard.html', show_section='pingsafe', result=result)
 
 
+# File upload and viewing
+@app.route('/files', methods=['GET', 'POST'])
+def files():
+    file_content = ''
+    filename = ''
 
+    if request.method == 'POST':
+        uploaded_file = request.files.get('file')
+        if uploaded_file and uploaded_file.filename:
+            ext = os.path.splitext(uploaded_file.filename)[1]
+            filename = f"{uuid.uuid4().hex}{ext}"
+            save_path = os.path.join(FILES_DIR, filename)
+            uploaded_file.save(save_path)
+            # Redirect to GET with filename as query param
+            return redirect(url_for('files', file=filename))
+
+    if request.method == 'GET' and 'file' in request.args:
+        filename = request.args.get('file')
+        print(f"Requested file: {filename}")
+        
+        # Validate filename to prevent directory traversal attacks
+        # Ensure the filename is safe and exists
+        safe_path = safe_join(FILES_DIR, filename)
+        
+        #print(f"Safe path: {safe_path}")
+        if not safe_path or not os.path.isfile(safe_path):
+            file_content = f"Error reading file."
+        try:
+            with open(safe_path, 'r', encoding='utf-8') as f:
+                file_content = f.read()
+        except Exception as e:
+            file_content = f"Error reading file"
+
+    return render_template('dashboard.html', show_section='files', filename=filename, file_content=file_content)
+
+# File upload and viewing (unsafe copy)
+@app.route('/filesunsafe', methods=['GET', 'POST'])
+def filesunsafe():
+    file_content = ''
+    filename = ''
+
+    if request.method == 'POST':
+        uploaded_file = request.files.get('file')
+        filename = uploaded_file.filename
+        if uploaded_file and uploaded_file.filename:
+            save_path = os.path.join(FILES_DIR, filename)
+            uploaded_file.save(save_path)
+            # Redirect to GET with filename as query param
+            return redirect(url_for('filesunsafe', file=filename))
+
+    if request.method == 'GET' and 'file' in request.args:
+        filename = request.args.get('file')
+        print(f"Requested file: {filename}")
+
+        safe_path = FILES_DIR+"/"+filename
+        print(f"Safe path: {safe_path}")
+        if not safe_path or not os.path.isfile(safe_path):
+            file_content = f"Error reading file."
+        try:
+            with open(safe_path, 'r', encoding='utf-8') as f:
+                file_content = f.read()
+        except Exception as e:
+            file_content = f"Error reading file"
+
+    return render_template('dashboard.html', show_section='filesunsafe', filename=filename, file_content=file_content)
+
+
+@app.route('/list')
+def list_files():
+    try:
+        files = os.listdir(FILES_DIR)
+        files = [f for f in files if os.path.isfile(os.path.join(FILES_DIR, f))]  # Only list files
+        print(f"Files in directory: {files}")
+        return render_template('dashboard.html', show_section='list', files=files)
+    except Exception as e:
+        return render_template('dashboard.html', show_section='list', message=f"Error listing files")
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', ssl_context=('cert.pem', 'key.pem'), debug=True)
