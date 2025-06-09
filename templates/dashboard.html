@@ -44,8 +44,13 @@
         <button class="btn btn-outline-success" onclick="showSection('pingunsafe')" data-app-button>Ping app</button>
         <button class="btn btn-outline-success" onclick="showSection('pingsafe')" data-app-button>Extremly Secure Ping app</button>
         <button class="btn btn-outline-success" onclick="window.location.href='{{ url_for('filesunsafe') }}'" data-app-button>File Storage</button>
-        <button class="btn btn-outline-success" onclick="window.location.href='{{ url_for('files') }}'" data-app-button>A little safer File Storage</button>
+        <button class="btn btn-outline-success" onclick="window.location.href='{{ url_for('files') }}'" data-app-button>Secure File Storage</button>
+        <button class="btn btn-outline-success" onclick="showSection('index')" data-app-button>Simple Dir Listing</button>
+    
         <button class="btn btn-outline-success" onclick="window.location.href='{{ url_for('list_files') }}', showSection('list')" data-app-button>List Uploaded Files</button>
+        <button class="btn btn-outline-success" onclick="showSection('time')" data-app-button>Time</button>
+        <button class="btn btn-outline-success" onclick="window.location.href='{{ url_for('feedback') }}', showSection('about')" data-app-button>Feedback</button>
+        
     </div>
 
     <!-- Main Content -->
@@ -106,7 +111,7 @@
 
         <div class="files">
             <div id="files" class="section">
-                <h3 class="mb-4">A simple storage facility to save files online.</h3>
+                <h3 class="mb-4">A bit secure storage facility to save files online.</h3>
                 <div class="card mb-4 shadow-sm">
                     <div class="card-body">
                         <h5 class="card-title">Upload a File</h5>
@@ -182,6 +187,47 @@
                         </ul>
                     {% endif %}
                 </div>
+        </div>
+
+        
+        <div class="index">
+            <div id="index" class="section">
+                <h3 class="mb-4">Simple Directory Listing</h3>
+                <iframe src="/index" style="width:100%;height:500px;border:1px solid #ccc;border-radius:6px;background:#fff;"></iframe>
+            </div>
+        </div>
+
+        <div class="time">
+            <div id="time" class="section">
+                <h3 class="mb-4">Just tells the current time</h3>
+                <iframe src="/time?time=now" style="width:100%;height:500px;border:0px solid #ccc;border-radius:6px;background:#fff;"></iframe>
+            </div>
+        </div>
+
+        <div class="about">
+            <div id="about" class="section">
+                <h3 class="mb-4">About Page</h3>
+                <p>This is a simple dashboard for various vulnerable applications.</p>  
+                <p>Use the sidebar to navigate through different applications.</p>  
+                <p>Each application has its own set of challenges and vulnerabilities to explore.</p>
+                <p>Feel free to experiment and learn about web application security.</p>
+                <p>For more information, visit the <a>{{github}}</a>"
+            </div>
+        </div>
+
+         <div class="feedback">
+            <div id="feedback" class="section">
+                <h3 class="mb-4">About Page</h3>
+                <p>We would love to hear your feedback!</p>
+                <form action="{{ url_for('feedback') }}" method="post" class="mb-3 d-flex flex-row align-items-center">
+                        <input type="text" name="feedback" id="feedback" class="form-control me-2" placeholder="Enter your feedback" style="max-width: 350px;">
+                        <button type="submit" class="btn btn-primary">submit</button>
+                </form>
+                {% if message %}
+                    <h3>Received your feedback:</h>
+                    <p>{{ message }}</p>
+                {% endif %}
+            </div>
         </div>
     </div>
 

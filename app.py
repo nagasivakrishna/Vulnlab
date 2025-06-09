@@ -4,7 +4,7 @@ import re
 import subprocess
 import uuid
 from werkzeug.utils import safe_join
-
+from datetime import datetime
 app = Flask(__name__)
 FILES_DIR = './files'
 
@@ -146,6 +146,64 @@ def list_files():
         return render_template('dashboard.html', show_section='list', files=files)
     except Exception as e:
         return render_template('dashboard.html', show_section='list', message=f"Error listing files")
+
+@app.route('/index', methods=['GET'])
+def index():
+    # Get the 'path' parameter from the query string, default to current directory
+    path = request.args.get('path', './files/')
+    try:
+        # List files and directories in the given path (no sanitization, allows traversal)
+        entries = os.listdir(path)
+        # Build links for each entry
+        links = []
+        for entry in entries:
+            full_path = os.path.join(path, entry)
+            if os.path.isdir(full_path):
+                # Link to subdirectory
+                links.append(f'<li><a href="?path={full_path}">{entry}/</a></li>')
+            else:
+                # Link to file (just display name, not download)
+                links.append(f'<li>{entry}</li>')
+        # Add link to parent directory if not at root
+        parent = os.path.dirname(os.path.abspath(path))
+        if os.path.abspath(path) != '/':
+            links.insert(0, f'<li><a href="?path={parent}">../</a></li>')
+        html = f"""
+        <h2>Index of {path}</h2>
+        <ul>
+            {''.join(links)}
+        </ul>
+        """
+        return html
+    except Exception as e:
+        return f"<h2>Error: {e}</h2>"
+
+@app.route('/time', methods=['GET'])
+def time():
+    param = request.args.get('time', 'now')
+    time = datetime.now().strftime('%Y-%m-%d %H:%M:%S') if param == 'now' else param
+    return render_template_string(time)
+
+# Here the user input is only displayed and not evaluated as template code
+# The variable is passed to the template as a string, not as executable code.
+@app.route('/feedback', methods=['GET', 'POST'])
+def feedback():
+    if request.method == 'POST':
+        feedback_text = request.form.get('feedback', '') 
+        return render_template('dashboard.html', show_section='feedback', message=feedback_text)
+    return render_template('dashboard.html', show_section='feedback')
+
+
+
+def list_files():
+    try:
+        files = os.listdir(FILES_DIR)
+        files = [f for f in files if os.path.isfile(os.path.join(FILES_DIR, f))]  # Only list files
+        print(f"Files in directory: {files}")
+        return render_template('dashboard.html', show_section='list', files=files)
+    except Exception as e:
+        return render_template('dashboard.html', show_section='list', message=f"Error listing files")
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', ssl_context=('cert.pem', 'key.pem'), debug=True)
