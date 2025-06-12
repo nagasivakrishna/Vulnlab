@@ -147,6 +147,8 @@ def list_files():
     except Exception as e:
         return render_template('dashboard.html', show_section='list', message=f"Error listing files")
 
+
+
 @app.route('/index', methods=['GET'])
 def index():
     # Get the 'path' parameter from the query string, default to current directory
@@ -178,6 +180,8 @@ def index():
     except Exception as e:
         return f"<h2>Error: {e}</h2>"
 
+# Uses render_template_string to render a simple time string
+# This allows for ssti here. as the time var is just being passed to the function
 @app.route('/time', methods=['GET'])
 def time():
     param = request.args.get('time', 'now')
@@ -192,6 +196,7 @@ def feedback():
         feedback_text = request.form.get('feedback', '') 
         return render_template('dashboard.html', show_section='feedback', message=feedback_text)
     return render_template('dashboard.html', show_section='feedback')
+
 
 
 
